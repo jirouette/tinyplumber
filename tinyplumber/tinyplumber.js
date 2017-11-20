@@ -1,16 +1,9 @@
+"use strict";
 
-var TinyPlumber = (function()
+class TinyPlumber
 {
-    var init = function()
+    static init()
     {
-        var type = "WebGL";
-        if(!PIXI.utils.isWebGLSupported())
-          type = "canvas";
-
-        PIXI.utils.sayHello(type);
-    };
-
-    return {
-        'init': init
-    };
-})();
+        this.app = new PIXI.Application();
+    }
+}
