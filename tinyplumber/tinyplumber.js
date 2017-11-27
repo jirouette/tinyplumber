@@ -1,7 +1,10 @@
 "use strict";
 
 const LEFT = 37;
+const UP = 38;
 const RIGHT = 39;
+
+const GROUND = 470;
 
 class InteractiveSprite extends PIXI.Sprite
 {
@@ -34,30 +37,77 @@ class InteractiveSprite extends PIXI.Sprite
 
 class Plumber extends InteractiveSprite
 {
+    constructor(app, texture)
+    {
+        super(app, texture);
+
+        this.maxspeed = 16;
+        this.acceleration = 2;
+        this.deceleration = 1;
+        this.jumpCurve = [4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1]; // empirical
+        this.jumpIndex = 0;
+        this.isJumping = false;
+    }
     onFrame()
     {
-        let maxspeed = 16;
-        let acceleration = 2;
-        let deceleration = 1;
-        let leftDown = this.app.isKeyDown(LEFT);
-        let rightDown = this.app.isKeyDown(RIGHT);
+        this.horizontalAcceleration();
+        this.verticalAcceleration();
 
-        if (leftDown && rightDown && this.speed_x)
+        super.onFrame();
+
+        if (this.y > GROUND)
+            this.y = GROUND;
+    }
+
+    onKeyDown(event)
+    {
+        super.onKeyDown(event);
+        if (event.keyCode == UP && this.y == GROUND)
+            this.isJumping = true;
+    }
+
+    onKeyUp(event)
+    {
+        super.onKeyUp(event);
+        if (event.keyCode == UP)
+            this.isJumping = false;
+    }
+
+    horizontalAcceleration()
+    {
+        let left = this.app.isKeyDown(LEFT);
+        let right = this.app.isKeyDown(RIGHT);
+
+        if (left && right && this.speed_x)
         {
-            this.speed_x += (this.speed_x > 0) ? -deceleration : deceleration;
+            this.speed_x += (this.speed_x > 0) ? -this.deceleration : this.deceleration;
         }
         else
         {
-            this.speed_x += rightDown ? acceleration : (this.speed_x > 0) ? -deceleration : 0;
-            this.speed_x += leftDown ? -acceleration : (this.speed_x < 0) ? deceleration : 0;
+            this.speed_x += right ? this.acceleration : (this.speed_x > 0) ? -this.deceleration : 0;
+            this.speed_x += left ? -this.acceleration : (this.speed_x < 0) ? this.deceleration : 0;
         }
 
-        if (this.speed_x > maxspeed)
-            this.speed_x = maxspeed;
-        if (this.speed_x < -maxspeed)
-            this.speed_x = -maxspeed;
+        if (this.speed_x > this.maxspeed)
+            this.speed_x = this.maxspeed;
+        if (this.speed_x < -this.maxspeed)
+            this.speed_x = -this.maxspeed;
+    }
 
-        super.onFrame();
+    verticalAcceleration()
+    {
+        this.speed_y += 1;
+        if (this.isJumping && this.jumpIndex < this.jumpCurve.length)
+            this.speed_y -= this.jumpCurve[this.jumpIndex++];
+        else if (this.jumpIndex > 0)
+            this.jumpIndex--;
+        else
+            this.isJumping = false;
+
+        if (this.speed_y > this.maxspeed)
+            this.speed_y = this.maxspeed;
+        if (this.speed_y < -this.maxspeed)
+            this.speed_y = -this.maxspeed;
     }
 
 };
