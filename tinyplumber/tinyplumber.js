@@ -36,11 +36,26 @@ class Plumber extends InteractiveSprite
 {
     onFrame()
     {
-        this.speed_x = 0;
-        this.speed_y = 0;
-        
-        this.speed_x += (this.app.isKeyDown(RIGHT)) ? 2 : 0;
-        this.speed_x += (this.app.isKeyDown(LEFT)) ? -2 : 0;
+        let maxspeed = 16;
+        let acceleration = 2;
+        let deceleration = 1;
+        let leftDown = this.app.isKeyDown(LEFT);
+        let rightDown = this.app.isKeyDown(RIGHT);
+
+        if (leftDown && rightDown && this.speed_x)
+        {
+            this.speed_x += (this.speed_x > 0) ? -deceleration : deceleration;
+        }
+        else
+        {
+            this.speed_x += rightDown ? acceleration : (this.speed_x > 0) ? -deceleration : 0;
+            this.speed_x += leftDown ? -acceleration : (this.speed_x < 0) ? deceleration : 0;
+        }
+
+        if (this.speed_x > maxspeed)
+            this.speed_x = maxspeed;
+        if (this.speed_x < -maxspeed)
+            this.speed_x = -maxspeed;
 
         super.onFrame();
     }
