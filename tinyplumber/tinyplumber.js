@@ -14,12 +14,39 @@ class InteractiveSprite extends PIXI.Sprite
         this.app = app;
         this.speed_x = 0;
         this.speed_y = 0;
+        this.maxspeed = 16;
+        this.acceleration = 1;
+        this.deceleration = 1;
+
+        this.animations = {'idle': []};
+        this.animationIndex = 0;
+        this.animationFrames = 8;
+        this.animation = 'idle';
     }
 
     onFrame()
     {
+        this.animate();
         this.x += this.speed_x;
         this.y += this.speed_y;
+    }
+
+    animate()
+    {
+        if (!(this.animation in this.animations) || this.animations[this.animation].length == 0)
+            return;
+        this.animationIndex++;
+
+        let i = Math.floor(this.animationIndex/this.animationFrames);
+
+        if (i >= this.animations[this.animation].length)
+        {
+            this.animationIndex = 0;
+            i = 0;
+        }
+
+        let rect = this.animations[this.animation][i];
+        this.texture.frame = new PIXI.Rectangle(rect.x, rect.y, rect.width, rect.height);
     }
 
     onKeyDown(event)
@@ -37,33 +64,49 @@ class InteractiveSprite extends PIXI.Sprite
 
 class Plumber extends InteractiveSprite
 {
-    constructor(app, texture)
+    constructor(app, texture, animations)
     {
         super(app, texture);
 
-        this.maxspeed = 16;
-        this.acceleration = 2;
-        this.deceleration = 1;
+        this.animations = animations;
         this.jumpCurve = [4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1]; // empirical
         this.jumpIndex = 0;
         this.isJumping = false;
     }
+
     onFrame()
     {
         this.horizontalAcceleration();
         this.verticalAcceleration();
 
+        if (this.animation != 'jumping' && this.animation != 'speedjumping')
+        {
+            if (this.speed_x == 0)
+                this.animation = 'idle';
+            else if (this.speed_x == this.maxspeed)
+                this.animation = 'running';
+            else
+                this.animation = 'walking';
+        }
+
         super.onFrame();
 
         if (this.y > GROUND)
+        {
             this.y = GROUND;
+            if (!this.isJumping && (this.animation == 'jumping' || this.animation == 'speedjumping'))
+                this.animation = this.animation == 'jumping' ? 'walking' : 'running';
+        }
     }
 
     onKeyDown(event)
     {
         super.onKeyDown(event);
         if (event.keyCode == UP && this.y == GROUND)
+        {
             this.isJumping = true;
+            this.animation = (this.speed_x == this.maxspeed) ? 'speedjumping' : 'jumping';
+        }
     }
 
     onKeyUp(event)
@@ -125,16 +168,16 @@ class TinyPlumber
         PIXI.loader
             .add("mario", "images/mario.png")
             .add("background", "images/background.png")
+            .add("marioanimations", "json/mario.json")
             .load((loader, resources) => this.onLoaded(loader, resources));
     }
 
     onLoaded(loader, resources)
     {
-        this.plumber = new Plumber(this, resources.mario.texture);
-        this.plumber.texture.frame = new PIXI.Rectangle(197, 48, 14, 28);
+        this.plumber = new Plumber(this, resources.mario.texture, resources.marioanimations.data);
 
         this.plumber.x = 200;
-        this.plumber.y = 470;
+        this.plumber.y = GROUND;
         this.plumber.width *= 3;
         this.plumber.height *= 3;
 
