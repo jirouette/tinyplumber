@@ -1,5 +1,8 @@
 "use strict";
 
+const LEFT = 37;
+const RIGHT = 39;
+
 class InteractiveSprite extends PIXI.Sprite
 {
     constructor(app, texture)
@@ -31,33 +34,17 @@ class InteractiveSprite extends PIXI.Sprite
 
 class Plumber extends InteractiveSprite
 {
-    onKeyDown(event)
+    onFrame()
     {
-        super.onKeyDown(event);
-        switch(event.keyCode)
-        {
-            case 39: // Right
-                this.speed_x = 2;
-                break;
-            case 37:
-                this.speed_x = -2;
-                break;
-        }
+        this.speed_x = 0;
+        this.speed_y = 0;
+        
+        this.speed_x += (this.app.isKeyDown(RIGHT)) ? 2 : 0;
+        this.speed_x += (this.app.isKeyDown(LEFT)) ? -2 : 0;
+
+        super.onFrame();
     }
 
-    onKeyUp(event)
-    {
-        super.onKeyUp(event);
-        switch(event.keyCode)
-        {
-            case 39: // Right
-                this.speed_x = 0;
-                break;
-            case 37:
-                this.speed_x = 0;
-                break;
-        }
-    }
 };
 
 class TinyPlumber
@@ -118,6 +105,6 @@ class TinyPlumber
 
     isKeyDown(keyCode)
     {
-        return this.keys.indexOf(event.keyCode) != -1 && this.keys[event.keyCode];
+        return keyCode in this.keys != -1 && this.keys[keyCode];
     }
 }
