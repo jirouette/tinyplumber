@@ -22,6 +22,8 @@ class InteractiveSprite extends PIXI.Sprite
         this.animationIndex = 0;
         this.animationFrames = 8;
         this.animation = 'idle';
+
+        this.anchor.x = 0.5;
     }
 
     onFrame()
@@ -29,6 +31,9 @@ class InteractiveSprite extends PIXI.Sprite
         this.animate();
         this.x += this.speed_x;
         this.y += this.speed_y;
+
+        this.scale.x = (this.speed_x < 0) ? -Math.abs(this.scale.x) : Math.abs(this.scale.x);
+
     }
 
     animate()
@@ -51,14 +56,10 @@ class InteractiveSprite extends PIXI.Sprite
 
     onKeyDown(event)
     {
-        if (this.app.debug)
-            console.log("onKeyDown"+event);
     }
 
     onKeyUp(event)
     {
-        if (this.app.debug)
-            console.log("onKeyDown"+event);
     }
 }
 
@@ -83,7 +84,7 @@ class Plumber extends InteractiveSprite
         {
             if (this.speed_x == 0)
                 this.animation = 'idle';
-            else if (this.speed_x == this.maxspeed)
+            else if (this.speed_x == this.maxspeed || this.speed_x == -this.maxspeed)
                 this.animation = 'running';
             else
                 this.animation = 'walking';
