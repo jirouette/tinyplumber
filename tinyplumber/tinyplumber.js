@@ -1,10 +1,14 @@
 "use strict";
 
+var PIXI = require('pixi.js');
+var pixiTiled = require('pixi-tiledmap');
+var fs = require('fs');
+
 const LEFT = 37;
 const UP = 38;
 const RIGHT = 39;
 
-const GROUND = 470;
+const GROUND = 540;
 
 class InteractiveSprite extends PIXI.Sprite
 {
@@ -163,26 +167,29 @@ class TinyPlumber
         this.keys = {};
         this.debug = debug;
         PIXI.scaleModes.DEFAULT = PIXI.scaleModes.NEAREST;
-        this.app = new PIXI.Application({transparent: true});
+        this.app = new PIXI.Application({transparent: true, height: 320*2, width: 800*2});
         document.body.appendChild(this.app.view);
 
         PIXI.loader
             .add("mario", "images/mario.png")
-            .add("background", "images/background.png")
             .add("marioanimations", "json/mario.json")
+            .add('assets/level1-1.tmx')
             .load((loader, resources) => this.onLoaded(loader, resources));
     }
 
     onLoaded(loader, resources)
     {
+        this.tileMap = new PIXI.extras.TiledMap( 'assets/level1-1.tmx' );
         this.plumber = new Plumber(this, resources.mario.texture, resources.marioanimations.data);
 
         this.plumber.x = 200;
         this.plumber.y = GROUND;
-        this.plumber.width *= 3;
-        this.plumber.height *= 3;
+        this.plumber.width *= 2.5;
+        this.plumber.height *= 2.5;
+        this.tileMap.width *= 2;
+        this.tileMap.height *= 2;
 
-        this.app.stage.addChild(new PIXI.Sprite(resources.background.texture));
+        this.app.stage.addChild(this.tileMap);
         this.app.stage.addChild(this.plumber);
 
         this.onFrame();
@@ -217,3 +224,5 @@ class TinyPlumber
         return keyCode in this.keys != -1 && this.keys[keyCode];
     }
 }
+
+global.TinyPlumber = TinyPlumber;
