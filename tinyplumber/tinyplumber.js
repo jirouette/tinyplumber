@@ -110,7 +110,7 @@ class Plumber extends InteractiveSprite
         if (event.keyCode == UP && this.y == GROUND)
         {
             this.isJumping = true;
-            this.animation = (this.speed_x == this.maxspeed) ? 'speedjumping' : 'jumping';
+            this.animation = (this.speed_x == this.maxspeed || this.speed_x == -this.maxspeed) ? 'speedjumping' : 'jumping';
         }
     }
 
