@@ -1,11 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" tiledversion="1.0.3" orientation="orthogonal" renderorder="right-down" width="50" height="20" tilewidth="16" tileheight="16" nextobjectid="1">
- <tileset firstgid="1" name="tileset3" tilewidth="16" tileheight="16" spacing="1" tilecount="930" columns="30">
+ <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="1" tilecount="930" columns="30">
   <image source="../images/tileset.png" width="509" height="526"/>
  </tileset>
- <layer name="Calque de Tile 1" width="50" height="20">
+ <tileset firstgid="931" name="collisions" tilewidth="16" tileheight="16" tilecount="2" columns="1">
+  <properties>
+   <property name="collision" type="bool" value="true"/>
+  </properties>
+  <image source="../images/collisions.png" width="16" height="32"/>
+  <tile id="0">
+   <properties>
+    <property name="type" value="collision"/>
+   </properties>
+  </tile>
+  <tile id="1">
+   <properties>
+    <property name="type" value="weakground"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="933" name="dirtytileset" tilewidth="16" tileheight="16" spacing="1" tilecount="1628" columns="74">
+  <image source="../images/dirtytileset.png" width="1257" height="373"/>
+  <tile id="67">
+   <animation>
+    <frame tileid="67" duration="130"/>
+    <frame tileid="68" duration="130"/>
+    <frame tileid="69" duration="130"/>
+    <frame tileid="70" duration="130"/>
+   </animation>
+  </tile>
+  <tile id="70">
+   <animation>
+    <frame tileid="67" duration="100"/>
+    <frame tileid="68" duration="100"/>
+    <frame tileid="69" duration="100"/>
+    <frame tileid="70" duration="100"/>
+   </animation>
+  </tile>
+  <tile id="363">
+   <animation>
+    <frame tileid="67" duration="150"/>
+    <frame tileid="68" duration="150"/>
+    <frame tileid="69" duration="150"/>
+    <frame tileid="70" duration="150"/>
+   </animation>
+  </tile>
+ </tileset>
+ <layer name="display" width="50" height="20">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2BkgTBGBoZwxoExgxp2w0AJ0JxSCs0i1wxq2D0Khh7AlX6pma6p4R5CAFf6Hah0PZqfRsEoGAXkAG4g5qHQjDggjkfCCRSaRyoA+cEdiLUYyPdPNBDHAHEsENdCcR21HEgk0ARiDwaIX1KhbFL9UgnEVUBczYDbH3lAnI9D/yMgfgzET0i0FxmA/AFzP8wvWgT0lKHVX9OBeAYQzwTi2VA8B01tDxD3YtHvAGIDMSMQMzFiNx+djwymAOWmDnE8DYgBlhw80A==
+   eJxjYBgFo2BkgTBGBoZwxoExgxp2w0AJ0JxSCs0i1wxq2D0Khh7AlX6pma6p4R5CAFf6Hah0PZqfRgGx4AUzBI+CoQ+oEY/cQMxDoRlxQByPhBMoNI9UAPKDOxBrMeD2D6GwigbiGCCOBeJaKK6jpiOJcIMmEHswQPySCmWTGjeVQFwFxNUMuP2RB8T5OPQ/AuLHQPyERHuRAcgfMPfD/KJFQE8ZWv01HYhnAPFMIJ4NxXPQ1PYAcS8W/Q4gNhAzAjETI3bz0fnIYApQbuoQx9OAGAAvAUFn
+  </data>
+ </layer>
+ <layer name="collisions" width="50" height="20" visible="0">
+  <data encoding="base64" compression="zlib">
+   eJzt06ENACAMRUES9p8ChmMM0HUoKNwl3/eJlgIA/GbU0xfAffr6ixaW0SsdsSFrB+yYRc0KqA==
   </data>
  </layer>
 </map>
