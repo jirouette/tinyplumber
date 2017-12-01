@@ -2,13 +2,10 @@
 
 var PIXI = require('pixi.js');
 var pixiTiled = require('pixi-tiledmap');
-var fs = require('fs');
 
 const LEFT = 37;
 const UP = 38;
 const RIGHT = 39;
-
-const GROUND = 540;
 
 class InteractiveSprite extends PIXI.Sprite
 {
@@ -18,9 +15,10 @@ class InteractiveSprite extends PIXI.Sprite
         this.app = app;
         this.speed_x = 0;
         this.speed_y = 0;
-        this.maxspeed = 16;
+        this.maxspeed = 10;
         this.acceleration = 1;
         this.deceleration = 1;
+        this.copy = new PIXI.Sprite(texture);
 
         this.animations = {'idle': []};
         this.animationIndex = 0;
@@ -55,7 +53,16 @@ class InteractiveSprite extends PIXI.Sprite
         }
 
         let rect = this.animations[this.animation][i];
-        this.texture.frame = new PIXI.Rectangle(rect.x, rect.y, rect.width, rect.height);
+
+        if (this.app.debug)
+        {
+            this.texture = PIXI.Texture.WHITE;
+            this.width = rect.width;
+            this.height = rect.height;
+            this.tint = 0x0000FF;
+        }
+        else
+            this.texture.frame = new PIXI.Rectangle(rect.x, rect.y, rect.width, rect.height);
     }
 
     onKeyDown(event)
@@ -77,12 +84,14 @@ class Plumber extends InteractiveSprite
         this.jumpCurve = [4, 4, 4, 4, 4, 4, 4, 3, 3, 2, 2, 2, 1, 1, 1, 1, 1]; // empirical
         this.jumpIndex = 0;
         this.isJumping = false;
+        this.on_ground = false;
     }
 
     onFrame()
     {
         this.horizontalAcceleration();
         this.verticalAcceleration();
+        this.collision(this.app.map);
 
         if (this.animation != 'jumping' && this.animation != 'speedjumping')
         {
@@ -95,19 +104,72 @@ class Plumber extends InteractiveSprite
         }
 
         super.onFrame();
+        console.log(this.width,this.height);
 
-        if (this.y > GROUND)
+        if (this.on_ground)
         {
-            this.y = GROUND;
             if (!this.isJumping && (this.animation == 'jumping' || this.animation == 'speedjumping'))
                 this.animation = this.animation == 'jumping' ? 'walking' : 'running';
+        }
+
+        if (this.app.isKeyDown(LEFT))
+            this.scale.x = -Math.abs(this.scale.x);
+    }
+
+    collision(map)
+    {
+        for(let i in map.children)
+            if ('properties' in map.children[i])
+                if ('type' in map.children[i].properties)
+                    if(map.children[i].properties.type == 'collision')
+                    {
+                        map.children[i].visible = this.app.debug;
+                        for(let t in map.children[i].tiles)
+                        {
+
+                            let tile = map.children[i].tiles[t];
+                            tile.visible = !this.app.debug;
+                            this.horizontalCollision(map, tile);
+                            this.verticalCollision(map, tile);
+                        }
+                    }
+    }
+
+    horizontalCollision(map, tile)
+    {
+        if (tile.y > this.y && (tile.y-this.height+1) < this.y)
+        {
+            while (tile.x < (this.x+this.width/2+this.speed_x) && tile.x >= (this.x+this.width/2))
+                this.speed_x -= 1;
+            while ((tile.x+tile.width) > (this.x-this.width/2+this.speed_x) && (tile.x+tile.width) <= (this.x-this.width/2))
+                this.speed_x += 1;
+            tile.visible = this.app.debug;
+        }
+    }
+
+    verticalCollision(map, tile)
+    {
+        if (tile.x < this.x && (tile.x+tile.width) >= this.x)
+        {
+            if (this.speed_y != 0)
+                this.on_ground = false;
+
+            while (tile.y < (this.y+this.height+this.speed_y) && tile.y >= (this.y+this.height))
+            {
+                this.on_ground = true;
+                this.speed_y -= 1;
+            }
+            while ((tile.y+tile.height) > (this.y+this.speed_y) && (tile.y+tile.height) <= this.y)
+                this.speed_y += 1;
+
+            tile.visible = this.app.debug;
         }
     }
 
     onKeyDown(event)
     {
         super.onKeyDown(event);
-        if (event.keyCode == UP && this.y == GROUND)
+        if (event.keyCode == UP && this.on_ground)
         {
             this.isJumping = true;
             this.animation = (this.speed_x == this.maxspeed || this.speed_x == -this.maxspeed) ? 'speedjumping' : 'jumping';
@@ -179,18 +241,18 @@ class TinyPlumber
 
     onLoaded(loader, resources)
     {
-        this.tileMap = new PIXI.extras.TiledMap( 'assets/level1-1.tmx' );
+        this.map = new PIXI.extras.TiledMap( 'assets/level1-1.tmx' );
         this.plumber = new Plumber(this, resources.mario.texture, resources.marioanimations.data);
+        this.map.addChild(this.plumber);
 
         this.plumber.x = 200;
-        this.plumber.y = GROUND;
-        this.plumber.width *= 2.5;
-        this.plumber.height *= 2.5;
-        this.tileMap.width *= 2;
-        this.tileMap.height *= 2;
+        this.plumber.y = 200;
+        this.plumber.width *= 1.25;
+        this.plumber.height *= 1.25;
+        this.map.width *= 2;
+        this.map.height *= 2;
 
-        this.app.stage.addChild(this.tileMap);
-        this.app.stage.addChild(this.plumber);
+        this.app.stage.addChild(this.map);
 
         this.onFrame();
         window.addEventListener('keydown', (event) => this.onKeyDown(event));
@@ -206,17 +268,13 @@ class TinyPlumber
     onKeyDown(event)
     {
         this.keys[event.keyCode] = true;
-        for (let i in this.app.stage.children)
-            if (this.app.stage.children[i] instanceof InteractiveSprite)
-                this.app.stage.children[i].onKeyDown(event);
+        this.plumber.onKeyDown(event);
     }
 
     onKeyUp(event)
     {
         this.keys[event.keyCode] = false;
-        for (let i in this.app.stage.children)
-            if (this.app.stage.children[i] instanceof InteractiveSprite)
-                this.app.stage.children[i].onKeyUp(event);
+        this.plumber.onKeyUp(event);
     }
 
     isKeyDown(keyCode)

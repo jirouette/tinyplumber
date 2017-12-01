@@ -10,7 +10,7 @@
   <![endif]-->
   <script src="bundle.js"></script>
   <script type="text/javascript">
-	document.addEventListener('DOMContentLoaded', () => new TinyPlumber(true));
+	document.addEventListener('DOMContentLoaded', () => new TinyPlumber(window.location.href.indexOf('debug') != -1));
   </script>
 </head>
 <body>
