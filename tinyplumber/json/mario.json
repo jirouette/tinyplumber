@@ -1,17 +1,17 @@
 {
-	"idle": [{"x": 197, "y": 48, "width": 14, "height": 28}],
+	"idle": [{"x": 197, "y": 48, "width": 14, "height": 27}],
 	"walking": [
-		{"x": 197, "y": 48, "width": 14, "height": 28},
-		{"x": 214, "y": 48, "width": 16, "height": 28},
-		{"x": 233, "y": 48, "width": 16, "height": 28},
-		{"x": 214, "y": 48, "width": 16, "height": 28}
+		{"x": 197, "y": 48, "width": 14, "height": 27},
+		{"x": 214, "y": 48, "width": 16, "height": 27},
+		{"x": 233, "y": 48, "width": 16, "height": 27},
+		{"x": 214, "y": 48, "width": 16, "height": 27}
 	],
-	"jumping": [{"x": 271, "y": 48, "width": 16, "height": 28}],
+	"jumping": [{"x": 271, "y": 48, "width": 16, "height": 27}],
 	"running": [
-		{"x": 290, "y": 48, "width": 19, "height": 28},
-		{"x": 312, "y": 48, "width": 19, "height": 28},
-		{"x": 335, "y": 48, "width": 19, "height": 28},
-		{"x": 312, "y": 48, "width": 19, "height": 28}
+		{"x": 290, "y": 48, "width": 19, "height": 27},
+		{"x": 312, "y": 48, "width": 19, "height": 27},
+		{"x": 335, "y": 48, "width": 19, "height": 27},
+		{"x": 312, "y": 48, "width": 19, "height": 27}
 	],
-	"speedjumping": [{"x": 357, "y": 48, "width": 19, "height": 28}]
+	"speedjumping": [{"x": 357, "y": 48, "width": 19, "height": 27}]
 }
